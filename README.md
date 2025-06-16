@@ -1,2 +1,5 @@
 # Dynarray
- Dynamioc array implementation for C
+ Dynamic array implementation for C
+
+# License
+ do whatever you want with it
