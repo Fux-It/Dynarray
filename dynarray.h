@@ -109,13 +109,13 @@ FORCE_INLINE size_t round_next_pow2(size_t number)
     number |= number >> 4;
     number |= number >> 8;
     number |= number >> 16;
-#endif    
 #if SIZE_MAX > 0xFFFFFFFF
     number |= number >> 32;
 #endif
     number++;
 
     return number;
+#endif    
 }
 
 int resize_vector(vector *vec, size_t size);
