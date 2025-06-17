@@ -18,11 +18,13 @@
 #define FORCE_INLINE __attribute__((always_inline)) inline
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 #define LIKELY(x) __builtin_expect(!!(x), 1)
+#define COLD __attribute__((cold))
 
 #else   /*MSVC is the only crappy compiler that doesnt support this*/
 
 #define UNLIKELY(x) (x)
 #define LIKELY(x) (x)
+#define COLD
 
 #endif
 
@@ -49,22 +51,14 @@ vector initialize_vec(size_t elem_size);
 
 void free_vector(vector *vec);
 
+COLD int vector_push_back_cold(vector* vec, const void *element);
+
 /* remember to turn it into force_inline */
 FORCE_INLINE int vector_push_back(vector *vec, const void *element)
 {   
     if(UNLIKELY((vec->size + 1) * vec->elem_size > vec->capacity)) 
     {
-        //FUCKING SHIT BRO, this prevents a bug, so we dont end up losing the old ptr when 
-        //reallocing, anyways this doubles the capacity
-        void *tmp = realloc(vec->data, vec->capacity * 2); 
-        if(!tmp)
-        {
-            vec->status = VECTOR_ALLOCATION_ERROR;
-            return -1;
-        }
-        vec->capacity *= 2;
-
-        vec->data = tmp;
+        return vector_push_back_cold(vec, element);
     }
     
     memcpy((char *)vec->data + vec->size * vec->elem_size, element, vec->elem_size);
@@ -122,7 +116,7 @@ int resize_vector(vector *vec, size_t size);
 
 int insert_vector(vector *vec, const void *elements, size_t start, size_t end);
 
-static inline int shrink_to_fit_vector(vector *vec)
+FORCE_INLINE int shrink_to_fit_vector(vector *vec)
 {
     if(!vec)
         return -1;

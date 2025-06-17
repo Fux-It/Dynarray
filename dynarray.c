@@ -83,3 +83,23 @@ int insert_vector(vector *vec, const void *elements, size_t start, size_t end)
     memcpy((char *) vec->data + start * vec->elem_size, elements, end * vec->elem_size);
     return 0;
 }
+
+
+COLD int vector_push_back_cold(vector* vec, const void *element)
+{
+    //FUCKING SHIT BRO, this prevents a bug, so we dont end up losing the old ptr when 
+    //reallocing, anyways this doubles the capacity
+    void *tmp = realloc(vec->data, vec->capacity * 2); 
+    if(!tmp)
+    {
+        vec->status = VECTOR_ALLOCATION_ERROR;
+        return -1;
+    }
+    vec->capacity *= 2;
+    vec->data = tmp;
+    
+    memcpy((char *)vec->data + vec->size * vec->elem_size, element, vec->elem_size);
+    
+    vec->size++;
+    return 0;
+}
