@@ -98,7 +98,24 @@ COLD int vector_push_back_cold(vector* vec, const void *element)
     vec->capacity *= 2;
     vec->data = tmp;
     
-    memcpy((char *)vec->data + vec->size * vec->elem_size, element, vec->elem_size);
+    void *dst = (char*)vec->data + vec->size * vec->elem_size;
+    switch (vec->elem_size) 
+    {
+    case 1:
+        memcpy(dst, element, 1);
+        break;
+    case 2:
+        memcpy(dst, element, 2);
+        break;
+    case 4:
+        memcpy(dst, element, 4);
+        break;
+    case 8:
+        memcpy(dst, element, 8);
+        break;
+    default:
+        memcpy(dst, element, vec->elem_size);
+    }
     
     vec->size++;
     return 0;

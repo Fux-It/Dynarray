@@ -24,7 +24,7 @@ void benchmark_c_vector(size_t count) {
 
 int main(void)
 {
-    const size_t count = 10000000;
+    const size_t count = 1000000000;
 
     printf("BENCHMARKING %zu ELEMENTS FOR C\n", count);
 

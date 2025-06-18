@@ -23,7 +23,7 @@ void benchmark_cpp_vector(size_t count) {
 }
 
 int main() {
-    const size_t count = 10'000'000;
+    const size_t count = 1000000000;
 
     std::cout << "Benchmarking vector insertions (" << count << " elements):" << std::endl;
 
