@@ -22,6 +22,7 @@
 
 #else   /*MSVC is the only crappy compiler that doesnt support this*/
 
+#define FORCE_INLINE __forceinline
 #define UNLIKELY(x) (x)
 #define LIKELY(x) (x)
 #define COLD
@@ -32,14 +33,15 @@
 
 typedef enum
 {
-    VECTOR_NO_ERROR,
-    VECTOR_ALLOCATION_ERROR,
-    VECTOR_FREED
+    VECTOR_NO_ERROR = 0,
+    VECTOR_ALLOCATION_ERROR = 1,
+    VECTOR_FREED = 2
 } vector_err_flag;
 
 typedef struct
 {
-    size_t capacity;    /* THIS IS IN BYTES, REMEMBER THIS YOU MONGREL */
+    size_t capacity;    /* THIS IS IN ELEMENTS NOT BYTES, REMEMBER THIS YOU MONGREL */
+    size_t capacity_bytes;
     size_t size;        /* NOT IN BYTES, THIS IS THE COUNT BASICALLY */
     size_t elem_size;
 
@@ -51,38 +53,19 @@ vector initialize_vec(size_t elem_size);
 
 void free_vector(vector *vec);
 
-COLD int vector_push_back_cold(vector* vec, const void *element);
+COLD int vector_push_back_resize(vector* vec);
 
-/* remember to turn it into force_inline */
-FORCE_INLINE int vector_push_back(vector *vec, const void *element)
-{   
-    if(UNLIKELY((vec->size + 1) * vec->elem_size > vec->capacity)) 
-    {
-        return vector_push_back_cold(vec, element);
-    }
-    
-    void *dst = (char*)vec->data + vec->size * vec->elem_size;
-    switch (vec->elem_size) 
-    {
-    case 1:
-        memcpy(dst, element, 1);
-        break;
-    case 2:
-        memcpy(dst, element, 2);
-        break;
-    case 4:
-        memcpy(dst, element, 4);
-        break;
-    case 8:
-        memcpy(dst, element, 8);
-        break;
-    default:
-        memcpy(dst, element, vec->elem_size);
-    }
-    vec->size++;
+#define VEC_PUSH_BACK(type, vec, element)do\
+{\
+    if(UNLIKELY(vec.size >= vec.capacity))\
+    {\
+        vector_push_back_resize(&vec);\
+    }\
+    ((type *) vec.data)[vec.size] = element;\
+    vec.size++;\
+}\
+while(0)\
 
-    return 0;
-}
 
 FORCE_INLINE size_t round_next_pow2(size_t number)
 {
@@ -138,10 +121,9 @@ FORCE_INLINE int shrink_to_fit_vector(vector *vec)
     if(!vec)
         return -1;
 
-    size_t bytesize = vec->size * vec->elem_size;
-    if(bytesize < vec->capacity)
+    if(vec->size < vec->capacity)
     {
-        void *tmp = realloc(vec->data, bytesize);
+        void *tmp = realloc(vec->data, vec->size * vec->elem_size);
         
         if(!tmp)
         {
@@ -150,7 +132,7 @@ FORCE_INLINE int shrink_to_fit_vector(vector *vec)
         }
 
         vec->data = tmp;
-        vec->capacity = bytesize;
+        vec->capacity = vec->size;
     }
 
     return 0;

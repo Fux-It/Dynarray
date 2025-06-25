@@ -10,7 +10,7 @@ void benchmark_c_vector(size_t count) {
 
     for (size_t i = 0; i < count; ++i) {
         int value = i;
-        vector_push_back(&vec, &value);
+        VEC_PUSH_BACK(int, vec, value);
     }
 
     clock_t end = clock();

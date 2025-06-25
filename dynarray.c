@@ -6,10 +6,10 @@
 vector initialize_vec(size_t elem_size)
 {
     assert(elem_size != 0 && "VECTOR ERROR, ELEMENT SIZE MUSTN'T BE ZERO");
-    vector dynarray = {.elem_size = elem_size, .capacity = VECTOR_INITIAL_CAPACITY * elem_size,
+    vector dynarray = {.elem_size = elem_size, .capacity = VECTOR_INITIAL_CAPACITY,
                         .size = 0};
 
-    dynarray.data = malloc(dynarray.capacity);
+    dynarray.data = malloc(dynarray.capacity * elem_size);
     
     if(!dynarray.data)
         dynarray.status = VECTOR_ALLOCATION_ERROR;
@@ -32,10 +32,10 @@ void free_vector(vector *vec)
 int resize_vector(vector *vec, size_t size)
 {
     //only realloc when size > capacity
-    if(UNLIKELY(size * vec->elem_size > vec->capacity))
+    if(UNLIKELY(size > vec->capacity))
     {
         //the usual doubling
-        size_t new_cap_elem = (vec->capacity / vec->elem_size) * 2;
+        size_t new_cap_elem = vec->capacity * 2;
         
         //if this rare case happens, run pow2
         if(new_cap_elem < size)
@@ -49,11 +49,8 @@ int resize_vector(vector *vec, size_t size)
             vec->status = VECTOR_ALLOCATION_ERROR;
             return -1;
         }
-        vec->capacity = new_cap_elem * vec->elem_size;
+        vec->capacity = new_cap_elem;
         vec->data = tmp;        
-        
-        memset((char *)vec->data + vec->size * vec->elem_size, 0, 
-                (size - vec->size) * vec->elem_size);
     }
 
     vec->size = size;
@@ -85,11 +82,11 @@ int insert_vector(vector *vec, const void *elements, size_t start, size_t end)
 }
 
 
-COLD int vector_push_back_cold(vector* vec, const void *element)
+COLD int vector_push_back_resize(vector* vec)
 {
     //FUCKING SHIT BRO, this prevents a bug, so we dont end up losing the old ptr when 
     //reallocing, anyways this doubles the capacity
-    void *tmp = realloc(vec->data, vec->capacity * 2); 
+    void *tmp = realloc(vec->data, vec->capacity * 2 * vec->elem_size); 
     if(!tmp)
     {
         vec->status = VECTOR_ALLOCATION_ERROR;
@@ -98,25 +95,5 @@ COLD int vector_push_back_cold(vector* vec, const void *element)
     vec->capacity *= 2;
     vec->data = tmp;
     
-    void *dst = (char*)vec->data + vec->size * vec->elem_size;
-    switch (vec->elem_size) 
-    {
-    case 1:
-        memcpy(dst, element, 1);
-        break;
-    case 2:
-        memcpy(dst, element, 2);
-        break;
-    case 4:
-        memcpy(dst, element, 4);
-        break;
-    case 8:
-        memcpy(dst, element, 8);
-        break;
-    default:
-        memcpy(dst, element, vec->elem_size);
-    }
-    
-    vec->size++;
     return 0;
 }
