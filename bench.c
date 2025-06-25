@@ -4,14 +4,17 @@
 #include "dynarray.h"
 
 void benchmark_c_vector(size_t count) {
-    vector vec = initialize_vec(sizeof(int));
+    vector vec = initialize_vec(sizeof(int64_t));
+    reserve_vector(&vec, count);
 
     clock_t start = clock();
 
+    
     for (size_t i = 0; i < count; ++i) {
-        int value = i;
-        VEC_PUSH_BACK(int, vec, value);
-    }
+        int64_t value = i;
+
+        VEC_PUSH_BACK(int64_t, vec, value);
+    } 
 
     clock_t end = clock();
     double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
@@ -26,7 +29,7 @@ int main(void)
 {
     const size_t count = 1000000000;
 
-    printf("BENCHMARKING %zu ELEMENTS FOR C\n", count);
+    printf("BENCHMARKING %zu ELEMENTS FOR C [int64_t]\n", count);
 
     benchmark_c_vector(count);
 }
