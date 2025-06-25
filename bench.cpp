@@ -8,7 +8,7 @@
 
 void benchmark_cpp_vector(size_t count) {
     std::vector<int> vec;
-    vec.reserve(count); 
+
 
     auto start = std::chrono::high_resolution_clock::now();
 
