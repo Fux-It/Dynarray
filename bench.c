@@ -46,7 +46,7 @@ void benchmark_c_resize(size_t count) {
     clock_t end = clock();
     double elapsed = (double)(end - start) / CLOCKS_PER_SEC;
 
-    printf("C VECTOR: %.6f seconds\n", elapsed);
+    printf("C VECTOR: %.6f secwonds\n", elapsed);
     printf("sum - %" PRId64 "\n", sum);
     printf("capacity - %zu\n", vec.capacity);
 

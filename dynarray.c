@@ -32,7 +32,7 @@ void free_vector(vector *vec)
 NO_INLINE COLD int resize_vector_cold(vector *vec, size_t size)
 {
     //the usual doubling
-    size_t new_cap_elem = vec->capacity * 32;
+    size_t new_cap_elem = vec->capacity * 2;
     
     //if this rare case happens, run pow2
     if(new_cap_elem < size)
