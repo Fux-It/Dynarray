@@ -2,3 +2,5 @@ a.exe
 dynarray.o
 a++.exe
 compile_flags.txt
+bench.cpp
+bench.c
