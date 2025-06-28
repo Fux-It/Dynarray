@@ -29,29 +29,25 @@ void free_vector(vector *vec)
 }
 
 /* no overflow protection yet*/
-int resize_vector(vector *vec, size_t size)
+NO_INLINE COLD int resize_vector_cold(vector *vec, size_t size)
 {
-    //only realloc when size > capacity
-    if(UNLIKELY(size > vec->capacity))
+    //the usual doubling
+    size_t new_cap_elem = vec->capacity * 32;
+    
+    //if this rare case happens, run pow2
+    if(new_cap_elem < size)
     {
-        //the usual doubling
-        size_t new_cap_elem = vec->capacity * 2;
-        
-        //if this rare case happens, run pow2
-        if(new_cap_elem < size)
-        {
-            new_cap_elem = round_next_pow2(size);
-        }
-        
-        void *tmp = realloc(vec->data, new_cap_elem * vec->elem_size);
-        if(!tmp)
-        {
-            vec->status = VECTOR_ALLOCATION_ERROR;
-            return -1;
-        }
-        vec->capacity = new_cap_elem;
-        vec->data = tmp;        
+        new_cap_elem = round_next_pow2(size);
     }
+    
+    void *tmp = realloc(vec->data, new_cap_elem * vec->elem_size);
+    if(!tmp)
+    {
+        vec->status = VECTOR_ALLOCATION_ERROR;
+        return -1;
+    }
+    vec->capacity = new_cap_elem;
+    vec->data = tmp;        
 
     vec->size = size;
 

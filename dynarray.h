@@ -19,9 +19,10 @@
 #define UNLIKELY(x) __builtin_expect(!!(x), 0)
 #define LIKELY(x) __builtin_expect(!!(x), 1)
 #define COLD __attribute__((cold))
-
+#define NO_INLINE __attribute__((noinline))
 #elif defined(__MSC_VER)
 
+#define NO_INLINE
 #define FORCE_INLINE __forceinline
 #define UNLIKELY(x) (x)
 #define LIKELY(x) (x)
@@ -29,7 +30,8 @@
 
 #else   /*MSVC is the only crappy compiler that doesnt support this*/
 
-#define FORCE_INLINE
+#define NO_INLINE __declspec(noinline)
+#define FORCE_INLINE __forceinline
 #define UNLIKELY(x) (x)
 #define LIKELY(x) (x)
 #define COLD
@@ -121,8 +123,20 @@ FORCE_INLINE size_t round_next_pow2(size_t number)
     return number;
 #endif    
 }
+NO_INLINE COLD int resize_vector_cold(vector *vec, size_t size);
 
-int resize_vector(vector *vec, size_t size);
+FORCE_INLINE int resize_vector(vector *vec, size_t size)
+{
+    //only realloc when size > capacity
+    if(UNLIKELY(size > vec->capacity))
+    {
+        return resize_vector_cold(vec, size);
+    }
+
+    vec->size = size;
+
+    return 0;
+}
 
 int insert_vector(vector *vec, const void *elements, size_t start, size_t end);
 
