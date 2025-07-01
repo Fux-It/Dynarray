@@ -6,10 +6,13 @@
 #include <string.h>
 #include <limits.h>
 
+#include <immintrin.h>
+
 #ifdef _MSC_VER
 #include <intrin.h>
 #endif
 
+#define SG_WORD sizeof(size_t)
 #define VECTOR_INITIAL_CAPACITY 8
 
 /* put this in some utilities header or something */
@@ -178,6 +181,8 @@ FORCE_INLINE int reserve_vector(vector *vec, size_t size)
     }
     return 0;
 }
+
+int simd_memory_move(void *dest, const void *src, size_t bytes);
 
 #define VEC_POP_BACK(vec) vec.size--
 

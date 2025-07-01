@@ -34,7 +34,14 @@ int main(void)
     {
         printf(" %d,", ((int *) test.data)[i]);
     }
-
+    printf("\b }\n");
+    insert_vector(&test, ((int *)test.data) + 7, 2, 4);
+    
+    printf("{");
+    for(int i = 0; i < test.size; i++)
+    {
+        printf(" %d,", ((int *) test.data)[i]);
+    }
     printf("\b }\n");
     printf("CAPACITY AFTER INSERT - %zu, SIZE - %zu\n", test.capacity, test.size);
 
