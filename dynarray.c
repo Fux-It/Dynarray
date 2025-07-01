@@ -56,11 +56,14 @@ NO_INLINE COLD int resize_vector_cold(vector *vec, size_t size)
 
 int simd_memory_move(void *dest, const void *src, size_t bytes)
 {
+    if(dest == src || bytes == 0)
+        return 0;
 #ifdef __AVX__
 
     uint8_t *dst_end = (uint8_t *)dest + bytes;
     const uint8_t *src_end = (uint8_t *)src + bytes;
     size_t chunks = bytes / 32;
+    
     
     for(size_t i = 0; i < chunks; i++)
     {
@@ -72,13 +75,13 @@ int simd_memory_move(void *dest, const void *src, size_t bytes)
     }
 
 
-    
     memmove(dest, src, bytes % 32); 
+    
     
     return 0;
 #else
     memmove(dest, src, bytes); 
-    
+    return 0;
 #endif
 }
 

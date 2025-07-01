@@ -182,6 +182,8 @@ FORCE_INLINE int reserve_vector(vector *vec, size_t size)
     return 0;
 }
 
+//removes one element from the vector
+
 int simd_memory_move(void *dest, const void *src, size_t bytes);
 
 #define VEC_POP_BACK(vec) vec.size--
