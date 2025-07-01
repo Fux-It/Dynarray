@@ -54,7 +54,7 @@ NO_INLINE COLD int resize_vector_cold(vector *vec, size_t size)
     return 0;
 }
 
-int simd_memory_move(void *dest, const void *src, size_t bytes)
+int simd_memory_move_bwd(void *dest, const void *src, size_t bytes)
 {
     if(dest == src || bytes == 0)
         return 0;
@@ -85,6 +85,31 @@ int simd_memory_move(void *dest, const void *src, size_t bytes)
 #endif
 }
 
+int simd_memory_move_fwd(void *dest, const void *src, size_t bytes)
+{
+#ifdef __AVX__
+    uint8_t *dst_start = (uint8_t *)dest;
+    const uint8_t *src_start = (uint8_t *)src;
+    
+    size_t chunks = bytes / 32;
+
+    for(size_t i = 0; i < chunks; i++)
+    {
+        __m256i store = _mm256_loadu_si256((const __m256i *)src_start);
+        _mm256_storeu_si256((__m256i *) dst_start, store);
+
+        src_start += 32;
+        dst_start += 32;
+    }
+
+    memmove(dst_start, src_start, bytes % 32);
+    return 0;
+#else 
+    memmove(dest, src, bytes); 
+    return 0;
+#endif
+}
+
 int insert_vector(vector *vec, const void *elements, size_t start, size_t end)
 {
     if(!vec || !elements || end == 0)
@@ -99,7 +124,7 @@ int insert_vector(vector *vec, const void *elements, size_t start, size_t end)
     //memmove to create space if inserted in the middle
     if(start < old_size)
     {
-        simd_memory_move((char *) vec->data + (start + end) * vec->elem_size, 
+        simd_memory_move_bwd((char *) vec->data + (start + end) * vec->elem_size, 
                          (char *) vec->data + start * vec->elem_size,
                           (old_size - start) * vec->elem_size);
     }

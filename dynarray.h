@@ -45,9 +45,9 @@
 
 typedef enum
 {
-    VECTOR_NO_ERROR = 0,
-    VECTOR_ALLOCATION_ERROR = 1,
-    VECTOR_FREED = 2
+    VECTOR_NO_ERROR,
+    VECTOR_ALLOCATION_ERROR,
+    VECTOR_FREED,
 } vector_err_flag;
 
 typedef struct
@@ -182,10 +182,26 @@ FORCE_INLINE int reserve_vector(vector *vec, size_t size)
     return 0;
 }
 
+
+int simd_memory_move_bwd(void *dest, const void *src, size_t bytes);
+
+int simd_memory_move_fwd(void *dest, const void *src, size_t bytes);
+
 //removes one element from the vector
+FORCE_INLINE void erase_vector(vector *vec, size_t idx, size_t end)
+{
+    if (idx >= vec->size || end == 0 || idx + end > vec->size)
+        return;
 
-int simd_memory_move(void *dest, const void *src, size_t bytes);
+    if(vec->size > idx)
+    {
+        simd_memory_move_fwd(((uint8_t *) vec->data) + idx * vec->elem_size, 
+                             ((uint8_t *) vec->data) + (idx + end) * vec->elem_size, 
+                             (vec->size - idx - end) * vec->elem_size);
+    }
 
+    vec->size -= end;
+}
 #define VEC_POP_BACK(vec) vec.size--
 
 #endif

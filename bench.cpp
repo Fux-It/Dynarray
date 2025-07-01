@@ -8,7 +8,8 @@
 
 // C vector implementation
 
-void benchmark_cpp_vector(size_t count) {
+void benchmark_cpp_vector(size_t count) 
+{
     std::vector<int> vec;
     vec.reserve(count); 
 
@@ -16,7 +17,8 @@ void benchmark_cpp_vector(size_t count) {
 
 
     int64_t sum = 0;
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) 
+    {
         vec.push_back(static_cast<int>(i));
         sum += vec.back();
     }
@@ -28,7 +30,8 @@ void benchmark_cpp_vector(size_t count) {
     std::cout << "sum - " << sum << std::endl;
 }
 
-void benchmark_cpp_resize(size_t count) {
+void benchmark_cpp_resize(size_t count) 
+{
     std::vector<int> vec;
     
     vec.resize(100000);
@@ -39,7 +42,8 @@ void benchmark_cpp_resize(size_t count) {
 
 
     int64_t sum = 0;
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) 
+    {
         vec.resize(i + 1, i);
         sum += vec[i];
     }
@@ -52,7 +56,8 @@ void benchmark_cpp_resize(size_t count) {
     std::cout << "capacity - " << vec.capacity() << std::endl;
 }
 
-void benchmark_cpp_insert(size_t count) {
+void benchmark_cpp_insert(size_t count) 
+{
     std::vector<int> vec;
     
 
@@ -60,7 +65,8 @@ void benchmark_cpp_insert(size_t count) {
 
 
     int64_t sum = 0;
-    for (size_t i = 0; i < count; ++i) {
+    for (size_t i = 0; i < count; ++i) 
+    {
         vec.insert(vec.begin(), i);
         sum += vec[0];
     }
@@ -74,10 +80,47 @@ void benchmark_cpp_insert(size_t count) {
     std::cout << "size - " << vec.size() << std::endl;
 }
 
-int main() {
-    const size_t count = 1000000000 / 1000;
+void benchmark_cpp_erase(size_t count) 
+{
+    std::vector<int> vec;
+    
+    for(size_t i = 0; i < count; i++)
+        vec.push_back(i);
 
-    std::cout << "Benchmarking vector resize (" << count << " elements):" << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
 
+
+    int64_t sum = 0;
+    for (size_t i = 0; i < count; ++i) 
+    {
+        sum += vec[0];
+        vec.erase(vec.begin());
+    }
+
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double> duration = end - start;
+
+    std::cout << "C++ vector:   " << duration.count() << " seconds" << std::endl;
+    std::cout << "sum - " << sum << std::endl;
+    std::cout << "capacity - " << vec.capacity() << std::endl;
+    std::cout << "size - " << vec.size() << std::endl;
+}
+
+int main() 
+{
+    size_t count = 1000000000;
+    
+    std::cout << "Benchmarking vector PUSH_BACK (" << count << " elements):" << std::endl;
+    benchmark_cpp_vector(count);
+    
+    std::cout << "Benchmarking vector RESIZES (" << count << " elements):" << std::endl;
+    benchmark_cpp_resize(count);
+
+    count /= 1000;
+
+    std::cout << "Benchmarking vector INSERTS (" << count << " elements):" << std::endl;
     benchmark_cpp_insert(count);
+    
+    std::cout << "Benchmarking vector ERASE (" << count << " elements):" << std::endl;
+    benchmark_cpp_erase(count);
 }

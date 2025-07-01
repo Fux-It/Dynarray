@@ -12,7 +12,6 @@ int main(void)
         VEC_PUSH_BACK(int, test, i);
 
         printf("CAPACITY GREW TO - %zu & SIZE GREW TO - %zu\n", test.capacity, test.size);
-        printf("STATUS - %d\n", test.status);
     }
     
     printf("{");
@@ -35,7 +34,8 @@ int main(void)
         printf(" %d,", ((int *) test.data)[i]);
     }
     printf("\b }\n");
-    insert_vector(&test, ((int *)test.data) + 7, 2, 4);
+    
+    erase_vector(&test, 0, 1);
     
     printf("{");
     for(int i = 0; i < test.size; i++)
@@ -43,7 +43,18 @@ int main(void)
         printf(" %d,", ((int *) test.data)[i]);
     }
     printf("\b }\n");
-    printf("CAPACITY AFTER INSERT - %zu, SIZE - %zu\n", test.capacity, test.size);
+    
+    printf("CAPACITY AFTER ERASE - %zu, SIZE - %zu\n", test.capacity, test.size);
+    
+    erase_vector(&test, 2, 6);
+    printf("{");
+    for(int i = 0; i < test.size; i++)
+    {
+        printf(" %d,", ((int *) test.data)[i]);
+    }
+    printf("\b }\n");
+    
+    printf("CAPACITY AFTER ERASE - %zu, SIZE - %zu\n", test.capacity, test.size);
 
     shrink_to_fit_vector(&test);
     printf("CAPACITY AFTER SHRINKING - %zu, SIZE - %zu\n", test.capacity, test.size);
